@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astro.coded | Chart Explorer, Kundli Basics and Astrology Readings</title>
+<meta name="description" content="Explore houses, planets and aspects (drishti) in an interactive chart, get free kundli basics, and book a personal astrology reading with Astro.coded.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#FBF8F2">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Astro.coded | Interactive Chart Explorer">
+<meta property="og:description" content="See how planets and aspects affect each house in a clear, interactive chart.">
+<link rel="canonical" href="https://chinax001.github.io/astro-coded/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "Astro.coded",
+  "description": "Interactive chart explorer, free kundli basics, and personal astrology readings.",
+  "url": "https://chinax001.github.io/astro-coded/",
+  "priceRange": "₹80"
+}
+</script>
+<style>
+  :root {
+    --ivory: #FBF8F2;
+    --cream: #F6F0E6;
+    --beige: #E9DFCD;
+    --sand: #D6C5A6;
+    --line: rgba(120, 98, 64, 0.18);
+    --mint: #BFE9D7;
+    --mint-soft: #E2F5EC;
+    --mint-deep: #2E7D62;
+    --ink: #2B2620;
+    --muted: #756B5E;
+    --gold: #B08D57;
+    --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --r: 160px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--ivory); color: var(--ink);
+    font-family: var(--sans); font-weight: 500; line-height: 1.7; overflow-x: hidden;
+  }
+  h1, h2, h3, h4 { font-family: var(--serif); font-weight: 700; letter-spacing: -0.3px; margin: 0; line-height: 1.05; }
+  h2 { font-size: clamp(38px, 5vw, 64px); }
+  .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--mint-deep); margin: 0 0 14px; }
+  .sub { color: var(--muted); font-weight: 500; max-width: 640px; margin: 14px 0 0; }
+  a { color: var(--mint-deep); }
+  em { font-style: italic; color: var(--mint-deep); }
+
+  /* ---------- Background layers ---------- */
+  .bg-fallback {
+    position: fixed; inset: 0; z-index: -3;
+    background:
+      radial-gradient(ellipse at 20% 10%, #F3EBDD 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 80%, #DCF1E6 0%, transparent 55%),
+      #FBF8F2;
+  }
+  #bg-gl { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; }
+  .blob {
+    position: fixed; border-radius: 50%; filter: blur(70px); opacity: 0.6;
+    z-index: -1; pointer-events: none; will-change: transform;
+  }
+  .b1 { width: 460px; height: 460px; background: #CFEBDD; left: -120px; top: 8%; }
+  .b2 { width: 380px; height: 380px; background: #EFE2CB; right: -100px; top: 45%; }
+  .b3 { width: 420px; height: 420px; background: #DDF3E8; left: 30%; top: 78%; }
+
+  /* ---------- Navigation ---------- */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+    padding: 14px 28px;
+    background: rgba(251, 248, 242, 0.72);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--line);
+  }
+  .logo { font-family: var(--serif); font-weight: 700; font-size: 28px; color: var(--ink); text-decoration: none; letter-spacing: -0.3px; }
+  .logo em { color: var(--mint-deep); }
+  nav ul { display: flex; gap: 22px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+  nav a { color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 600; opacity: 0.8; }
+  nav a:hover { opacity: 1; color: var(--mint-deep); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative; min-height: 100vh; display: flex; align-items: center;
+    padding: 120px 28px 80px; max-width: 1180px; margin: 0 auto;
+  }
+  .hero-inner {
+    display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center; width: 100%;
+  }
+  .hero h1 { font-size: clamp(60px, 8.5vw, 120px); letter-spacing: -2px; }
+  .hero p.lead { font-size: clamp(17px, 2vw, 21px); color: var(--muted); max-width: 540px; margin: 22px 0 32px; font-weight: 500; }
+  .btns { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 16px 30px; border-radius: 999px; text-decoration: none;
+    font-weight: 800; font-size: 15px; letter-spacing: 0.2px; color: var(--ink);
+    background: linear-gradient(135deg, #E7F8F0, var(--mint) 60%, #A9DCC6);
+    border: 1px solid #A9DCC6;
+    box-shadow: 0 14px 40px -12px rgba(46, 125, 98, 0.45);
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .btn:hover { transform: translateY(-3px); box-shadow: 0 22px 50px -14px rgba(46, 125, 98, 0.55); }
+  .btn.ghost {
+    background: rgba(255, 255, 255, 0.6); border: 1px solid var(--line);
+    box-shadow: 0 10px 30px -18px rgba(90, 70, 40, 0.4);
+  }
+
+  .orbit-wrap { position: relative; width: 340px; height: 340px; margin: auto; perspective: 1000px; --r: 160px; }
+  .orbit { position: absolute; inset: 0; transform-style: preserve-3d; animation: orbitSpin 60s linear infinite; }
+  .ring { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(120, 98, 64, 0.22); }
+  .ring.r2 { inset: 50px; transform: rotateX(68deg); border-color: rgba(46, 125, 98, 0.28); }
+  .ring.r3 { inset: 22px; transform: rotateX(68deg) rotateZ(50deg); border-color: rgba(176, 141, 87, 0.3); }
+  .dot {
+    position: absolute; left: 50%; top: 50%; width: 11px; height: 11px; margin: -5.5px;
+    border-radius: 50%; background: var(--c); box-shadow: 0 0 14px var(--c);
+    transform: rotate(var(--a)) translateX(var(--r));
+  }
+  .core {
+    position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; margin: -60px 0 0 -60px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #FFFFFF 0%, #E4F6EE 30%, rgba(191, 233, 215, 0.5) 60%, transparent 72%);
+    box-shadow: 0 0 60px rgba(191, 233, 215, 0.9);
+    animation: breathe 4s ease-in-out infinite;
+  }
+  @keyframes orbitSpin { to { transform: rotateZ(360deg); } }
+  @keyframes breathe { 50% { transform: scale(1.12); } }
+
+  /* ---------- Sections ---------- */
+  section { position: relative; max-width: 1180px; margin: 0 auto; padding: 110px 28px; }
+  .glass {
+    position: relative; overflow: hidden;
+    background: rgba(255, 255, 255, 0.62);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--line); border-radius: 28px; padding: 28px;
+    box-shadow: 0 30px 80px -34px rgba(90, 70, 40, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transition: transform 0.25s ease;
+  }
+  .glass.tilt::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    background: radial-gradient(circle 420px at var(--mx, 50%) var(--my, 50%), rgba(191, 233, 215, 0.45), transparent 70%);
+    transition: opacity 0.3s;
+  }
+  .glass.tilt:hover::after { opacity: 1; }
+  .glass h3 { font-size: 26px; margin: 0 0 8px; }
+  .glass p { margin: 0; color: var(--muted); font-weight: 500; }
+
+  /* ---------- Chart explorer ---------- */
+  .lab-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 26px; margin-top: 44px; align-items: start; }
+  .chart-card { padding: 22px; }
+  #chartSvg { width: 100%; height: auto; display: block; user-select: none; }
+  #chartSvg .house { fill: rgba(255, 255, 255, 0.55); cursor: pointer; transition: fill 0.25s; }
+  #chartSvg .house:hover { fill: var(--mint-soft); }
+  #chartSvg .house.source { fill: #F5ECDB; }
+  #chartSvg .house.target { fill: #D5F0E3; }
+  #chartSvg .house.focus { fill: var(--mint); }
+  #chartSvg .frame { fill: none; stroke: var(--sand); stroke-width: 1.6; }
+  #chartSvg .gridline { stroke: var(--sand); stroke-width: 1.2; fill: none; }
+  #chartSvg .hlabel { font-family: var(--serif); font-weight: 700; font-size: 16px; fill: #8C7F69; text-anchor: middle; pointer-events: none; }
+  #chartSvg .pname { font-family: var(--sans); font-size: 9.5px; font-weight: 800; text-anchor: middle; pointer-events: none; }
+  #chartSvg .arc { fill: none; stroke: var(--mint-deep); stroke-width: 1.8; stroke-dasharray: 6 5; opacity: 0.9; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; font-size: 13px; color: var(--muted); font-weight: 600; }
+  .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .lg-focus::before { background: var(--mint); }
+  .lg-target::before { background: #D5F0E3; border: 1px solid var(--sand); }
+  .lg-source::before { background: #F5ECDB; border: 1px solid var(--sand); }
+
+  .panel { padding: 26px; }
+  .modes { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mode, .chip {
+    border: 1px solid var(--line); background: rgba(255, 255, 255, 0.75); color: var(--ink);
+    padding: 10px 16px; border-radius: 999px; font: inherit; font-size: 14px; font-weight: 700;
+    cursor: pointer; display: inline-flex; gap: 8px; align-items: center; transition: all 0.2s;
+  }
+  .mode:hover, .chip:hover { border-color: #A9DCC6; }
+  .mode.on { background: var(--mint); border-color: #9ED8BD; }
+  .chip.on { background: var(--ink); color: var(--ivory); border-color: var(--ink); }
+  .chip .dot2 { width: 10px; height: 10px; border-radius: 50%; }
+  .chip small { font-weight: 700; opacity: 0.7; }
+  .step { margin: 22px 0 14px; font-weight: 700; color: var(--ink); font-size: 15px; }
+  .planets { display: flex; flex-wrap: wrap; gap: 9px; }
+  .actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .actions .chip { font-size: 13px; }
+  .readout { margin-top: 18px; }
+  .rcard {
+    background: rgba(255, 255, 255, 0.75); border: 1px solid var(--line);
+    border-radius: 20px; padding: 18px 20px; margin-bottom: 12px;
+  }
+  .rcard h4 { font-size: 24px; margin-bottom: 6px; }
+  .rcard p { margin: 6px 0 0; color: var(--muted); font-weight: 500; font-size: 15px; }
+  .tag {
+    display: inline-block; padding: 4px 11px; border-radius: 999px; margin: 6px 6px 0 0;
+    background: var(--mint-soft); color: var(--mint-deep); font-size: 12px; font-weight: 800;
+  }
+  .tag.gold { background: #F4EAD6; color: #8A6A36; }
+  .disclaimer { font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 14px; }
+
+  /* ---------- Learn / features ---------- */
+  .grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top: 44px; }
+  .feature-num { font-family: var(--serif); font-size: 44px; font-weight: 700; color: var(--mint-deep); line-height: 1; margin-bottom: 14px; }
+
+  /* ---------- Tools ---------- */
+  form.kundli { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; }
+  label { display: block; font-size: 12px; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; font-weight: 800; }
+  input {
+    width: 100%; padding: 15px; border-radius: 14px; border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.8); color: var(--ink); font: inherit; font-size: 16px;
+  }
+  input:focus { outline: none; border-color: #9ED8BD; box-shadow: 0 0 0 4px rgba(191, 233, 215, 0.6); }
+  form.kundli button {
+    width: 100%; padding: 16px; border: 0; border-radius: 14px; cursor: pointer;
+    font: inherit; font-weight: 800; font-size: 15px; color: var(--ink);
+    background: linear-gradient(135deg, #E7F8F0, var(--mint) 60%, #A9DCC6);
+  }
+  #result { display: none; margin-top: 26px; }
+  .note { font-size: 14px; color: var(--muted); font-weight: 600; margin-top: 18px; }
+
+  /* ---------- Booking ---------- */
+  .price { font-family: var(--serif); font-size: 64px; font-weight: 700; color: var(--ink); margin: 8px 0; line-height: 1; }
+  .price small { font-size: 22px; color: var(--muted); font-weight: 700; }
+  .steps { padding-left: 20px; margin: 24px 0 0; }
+  .steps li { margin-bottom: 10px; color: var(--muted); font-weight: 600; }
+  .qr { width: 240px; max-width: 72%; border-radius: 20px; background: #fff; padding: 14px; box-shadow: 0 20px 40px -24px rgba(90, 70, 40, 0.4); }
+  .empty { border: 1px dashed var(--sand); border-radius: 28px; padding: 40px; text-align: center; color: var(--muted); font-weight: 600; background: rgba(255, 255, 255, 0.4); }
+
+  details.glass { padding: 20px 24px; margin-bottom: 14px; }
+  details summary { cursor: pointer; font-weight: 800; font-size: 17px; color: var(--ink); }
+  details p { margin-top: 10px; }
+
+  footer {
+    position: relative; text-align: center; padding: 40px 28px; margin-top: 40px;
+    color: var(--muted); font-size: 14px; font-weight: 600; border-top: 1px solid var(--line);
+  }
+
+  .reveal { opacity: 0; transform: translateY(36px); transition: opacity 1s ease, transform 1s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  #motionBtn {
+    position: fixed; right: 18px; bottom: 18px; z-index: 30; padding: 12px 18px; border-radius: 999px;
+    border: 1px solid var(--line); background: rgba(255, 255, 255, 0.85); color: var(--ink);
+    font: inherit; font-weight: 800; font-size: 13px; cursor: pointer; backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px -14px rgba(90, 70, 40, 0.4);
+  }
+  #motionBtn[hidden] { display: none; }
+
+  /* ---------- Birth chart ---------- */
+  button.btn { font: inherit; cursor: pointer; }
+  .coords { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-top: 16px; }
+  .chart-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 8px; }
+  .meta-box { background: rgba(255, 255, 255, 0.75); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
+  .meta-box span { display: block; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--mint-deep); }
+  .meta-box strong { display: block; font-family: var(--serif); font-size: 26px; margin-top: 4px; color: var(--ink); line-height: 1.1; }
+  .meta-box small { display: block; color: var(--muted); font-weight: 600; font-size: 13px; margin-top: 4px; }
+  .table-wrap { overflow-x: auto; }
+  table.planet-table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 14px; }
+  table.planet-table th { text-align: left; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 800; padding: 10px 8px; border-bottom: 1px solid var(--line); }
+  table.planet-table td { padding: 11px 8px; border-bottom: 1px solid var(--line); color: var(--ink); font-weight: 600; white-space: nowrap; }
+  .err { color: #9A4A2F; font-weight: 700; margin: 0; }
+
+  .pob-wrap { position: relative; }
+  .pob-list { margin-top: 8px; background: #fff; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 18px 40px -22px rgba(90, 70, 40, 0.45); max-height: 300px; overflow-y: auto; }
+  .pob-item { padding: 11px 16px; cursor: pointer; border-bottom: 1px solid var(--line); }
+  .pob-item:last-child { border-bottom: 0; }
+  .pob-item:hover, .pob-item.active { background: var(--mint-soft); }
+  .pob-item b { display: block; color: var(--ink); font-weight: 800; font-size: 15px; }
+  .pob-item small { color: var(--muted); font-weight: 600; font-size: 13px; }
+  .pob-status { padding: 10px 16px; font-size: 13px; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); }
+
+  .gps-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+  .gps-status { font-size: 14px; color: var(--muted); font-weight: 600; }
+
+  @media (max-width: 900px) {
+    .hero-inner, .lab-grid { grid-template-columns: 1fr; }
+    .orbit-wrap { order: -1; width: 280px; height: 280px; --r: 130px; }
+    .hero { padding-top: 130px; }
+  }
+  @media (max-width: 640px) {
+    nav { padding: 12px 16px; }
+    nav ul { gap: 14px; }
+    section { padding: 80px 18px; }
+    .glass { padding: 22px; border-radius: 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .orbit, .core { animation: none; }
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-fallback" aria-hidden="true"></div>
+<canvas id="bg-gl" aria-hidden="true"></canvas>
+<div class="blob b1" aria-hidden="true"></div>
+<div class="blob b2" aria-hidden="true"></div>
+<div class="blob b3" aria-hidden="true"></div>
+
+<nav>
+  <a class="logo" href="#top">Astro<em>.coded</em></a>
+  <ul>
+    <li><a href="#chart">Chart explorer</a></li>
+    <li><a href="#learn">Learn</a></li>
+    <li><a href="#basics">Free basics</a></li>
+    <li><a href="#book">Book</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <div>
+      <p class="eyebrow">Vedic astrology · numerology · guidance</p>
+      <h1>Read the sky <em>one house at a time.</em></h1>
+      <p class="lead">Explore how each house is shaped by the planets that sit in it or aspect it. Learn the logic first, then book a personal reading for your own chart.</p>
+      <div class="btns">
+        <a class="btn" href="#chart">Open the chart explorer</a>
+        <a class="btn ghost" href="#book">Book a reading</a>
+      </div>
+    </div>
+    <div class="orbit-wrap" id="orbitWrap" aria-hidden="true">
+      <div class="orbit">
+        <div class="ring"></div>
+        <div class="ring r2"></div>
+        <div class="ring r3"></div>
+        <span class="dot" style="--a:0deg;--c:#B07A1E"></span>
+        <span class="dot" style="--a:40deg;--c:#8E9AA7"></span>
+        <span class="dot" style="--a:80deg;--c:#B3573A"></span>
+        <span class="dot" style="--a:120deg;--c:#3C8F6F"></span>
+        <span class="dot" style="--a:160deg;--c:#9A7430"></span>
+        <span class="dot" style="--a:200deg;--c:#C27C8A"></span>
+        <span class="dot" style="--a:240deg;--c:#6F675A"></span>
+        <span class="dot" style="--a:280deg;--c:#5B6D7D"></span>
+        <span class="dot" style="--a:320deg;--c:#8A6F50"></span>
+      </div>
+      <div class="core"></div>
+    </div>
+  </div>
+</header>
+
+<section id="chart">
+  <div class="reveal">
+    <p class="eyebrow">Chart explorer</p>
+    <h2>Place a planet. <em>See what it touches.</em></h2>
+    <p class="sub">Pick a planet, click a house to place it, then watch its aspects (drishti) light up. Or click any house to see which planets aspect it. No birth details are needed for this learning tool.</p>
+  </div>
+
+  <div class="lab-grid reveal">
+    <div class="glass chart-card">
+      <svg id="chartSvg" viewBox="-14 -14 328 328" role="img" aria-label="Interactive house chart">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M0 0L10 5L0 10z" fill="#2E7D62"></path>
+          </marker>
+        </defs>
+        <g id="gHouses"></g>
+        <g id="gGrid"></g>
+        <g id="gArcs"></g>
+        <g id="gLabels"></g>
+      </svg>
+      <div class="legend">
+        <span class="lg-focus">Focus house</span>
+        <span class="lg-source">Planet's house</span>
+        <span class="lg-target">Aspected house</span>
+      </div>
+    </div>
+
+    <div class="glass panel">
+      <div class="modes">
+        <button class="mode on" data-mode="place" type="button">Place planet</button>
+        <button class="mode" data-mode="read" type="button">Read house</button>
+        <button class="mode" data-mode="all" type="button">All aspects</button>
+      </div>
+      <p class="step" id="stepText"></p>
+      <div class="planets" id="planetChips"></div>
+      <div class="actions">
+        <button class="chip" id="loadExample" type="button">Load example chart</button>
+        <button class="chip" id="clearChart" type="button">Clear chart</button>
+      </div>
+      <div class="readout" id="readout"></div>
+      <p class="disclaimer">This explorer uses houses only, without signs or exact degrees. It shows how the standard aspect rules work. Treat the results as learning, not predictions. A real reading needs the full chart.</p>
+    </div>
+  </div>
+</section>
+
+<section id="learn">
+  <div class="reveal">
+    <p class="eyebrow">Learn</p>
+    <h2>The <em>building blocks.</em></h2>
+    <p class="sub">Each part of the chart answers a different question. Learn these, and the explorer above will make more sense.</p>
+  </div>
+  <div class="grid reveal">
+    <div class="glass tilt"><div class="feature-num">01</div><h3>Bhavas (houses)</h3><p>Twelve areas of life: self, wealth, siblings, home, children, health, partnership, transformation, fortune, career, gains, and release.</p></div>
+    <div class="glass tilt"><div class="feature-num">02</div><h3>Grahas (planets)</h3><p>The Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu, and Ketu. Each one shows how its energy works in a house.</p></div>
+    <div class="glass tilt"><div class="feature-num">03</div><h3>Drishti (aspects)</h3><p>Every planet aspects the 7th house from itself. Mars adds the 4th and 8th, Jupiter the 5th and 9th, and Saturn the 3rd and 10th. Schools differ on Rahu and Ketu, so this tool uses 5th, 7th, and 9th.</p></div>
+    <div class="glass tilt"><div class="feature-num">04</div><h3>Rashi and Lagna</h3><p>Your Rashi is the Moon's sign at birth. Your Lagna is the sign rising at birth. Both need an exact birth time and place to calculate.</p></div>
+    <div class="glass tilt"><div class="feature-num">05</div><h3>Nakshatra</h3><p>The Moon's position among 27 star groups. It adds detail to personality and to the timing of events.</p></div>
+    <div class="glass tilt"><div class="feature-num">06</div><h3>Dasha periods</h3><p>Planetary periods that show which life themes are active over time. Always read them with the full chart.</p></div>
+  </div>
+</section>
+
+<section id="basics">
+  <div class="reveal">
+    <p class="eyebrow">Free basics</p>
+    <h2>Your Sun sign and <em>Life Path.</em></h2>
+    <p class="sub">Enter your birth details. Add your birth time and place to get a free Vedic chart (Lagna, Rashi, Nakshatra and planet houses). Without them you get your Western Sun sign and numerology number.</p>
+  </div>
+  <div class="glass tilt reveal" style="margin-top:40px;">
+    <form class="kundli" id="kundliForm" autocomplete="off">
+      <div><label for="name">Your name</label><input id="name" required maxlength="40" placeholder="e.g. Priya"></div>
+      <div><label for="dob">Date of birth</label><input id="dob" type="date" required></div>
+      <div><label for="tob">Time of birth</label><input id="tob" type="time" step="60"></div>
+      <div><label for="pob">Place of birth</label><div class="pob-wrap"><input id="pob" maxlength="80" placeholder="Type a village, town or city" autocomplete="off"><div id="pobList" class="pob-list" hidden></div></div></div>
+      <div><button type="submit">Show my chart</button></div>
+    </form>
+    <div class="gps-row">
+      <button type="button" id="useGps" class="btn ghost">Use my live location</button>
+      <span id="gpsStatus" class="gps-status"></span>
+    </div>
+    <details style="margin-top:18px;">
+      <summary>Search failed? Enter coordinates manually</summary>
+      <div class="coords">
+        <div><label for="lat">Latitude</label><input id="lat" type="number" step="any" min="-90" max="90" placeholder="e.g. 18.52"></div>
+        <div><label for="lon">Longitude</label><input id="lon" type="number" step="any" min="-180" max="180" placeholder="e.g. 73.86"></div>
+        <div><label for="tz">UTC offset (hours)</label><input id="tz" type="number" step="0.5" min="-12" max="14" value="5.5"></div>
+      </div>
+    </details>
+  </div>
+  <div id="result"></div>
+  <p class="note">The free chart uses sidereal (Lahiri) positions. Dasha periods and the full interpretation come with your personal reading.</p>
+</section>
+
+<section id="book">
+  <div class="reveal">
+    <p class="eyebrow">Book a reading</p>
+    <h2>A real astrologer, <em>in writing.</em></h2>
+    <p class="sub">Two questions answered by hand within 24 hours. Pay by UPI, then send us the screenshot.</p>
+  </div>
+  <div class="grid reveal" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+    <div class="glass tilt">
+      <p class="eyebrow" style="margin-bottom:8px;">2 questions</p>
+      <div class="price">₹80</div>
+      <p>Written answers within 24 hours after your payment is confirmed.</p>
+      <ol class="steps">
+        <li>Send your name, date, time (if known), and place of birth.</li>
+        <li>Send your 2 questions.</li>
+        <li>Pay ₹80 by UPI, then send the screenshot.</li>
+        <li>Receive your written reply within 24 hours.</li>
+      </ol>
+    </div>
+    <div class="glass tilt" style="text-align:center;">
+      <img class="qr" src="qr.png" alt="UPI payment QR code for Astro.coded">
+      <p style="margin-top:18px;">UPI ID: <strong style="color:var(--ink);">8010895411@fam</strong></p>
+      <div class="btns" style="justify-content:center;margin-top:22px;">
+        <a class="btn" href="https://ig.me/m/_astro_coded">Message on Instagram</a>
+        <a class="btn ghost" href="mailto:codedastro@gmail.com">Email us</a>
+      </div>
+    </div>
+  </div>
+  <p class="note">Readings are for guidance and reflection, not guarantees. For health, legal, or financial decisions, please consult a qualified professional.</p>
+</section>
+
+<section id="reviews">
+  <div class="reveal">
+    <p class="eyebrow">Reviews</p>
+    <h2>Client <em>reviews.</em></h2>
+    <p class="sub">Reviews from real clients appear here, shared with their permission.</p>
+    <div class="empty" style="margin-top:30px;">No reviews yet. After your reading, you can share your feedback with us on Instagram.</div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="reveal">
+    <p class="eyebrow">FAQ</p>
+    <h2>Questions, <em>answered.</em></h2>
+  </div>
+  <div style="margin-top:36px;">
+    <details class="glass reveal">
+      <summary>Do I need my birth details to use the chart explorer?</summary>
+      <p>No. The explorer is a learning tool. You place planets yourself to see how aspects work. Your personal reading is where your birth details matter.</p>
+    </details>
+    <details class="glass reveal">
+      <summary>Is the free basics tool a full Vedic chart?</summary>
+      <p>Partly. With your birth time and place it shows a free Vedic chart: Lagna, Rashi, Nakshatra and planet houses. Dasha periods and a full interpretation come with your personal reading.</p>
+    </details>
+    <details class="glass reveal">
+      <summary>Why do I need my birth time?</summary>
+      <p>Your Lagna changes roughly every two hours, so the birth time changes the chart. If you don't know it, tell us and the reading will say so.</p>
+    </details>
+    <details class="glass reveal">
+      <summary>How fast do I get my reading?</summary>
+      <p>Within 24 hours after your payment is confirmed.</p>
+    </details>
+    <details class="glass reveal">
+      <summary>Is astrology scientific?</summary>
+      <p>Astrology is a traditional practice used for reflection and guidance. It is not scientific evidence, so don't rely on it alone for medical, legal, or financial decisions.</p>
+    </details>
+  </div>
+</section>
+
+<footer>
+  © 2026 Astro.coded. For entertainment, reflection, and guidance only.<br>
+  Contact: <a href="mailto:codedastro@gmail.com">codedastro@gmail.com</a> · Instagram <a href="https://instagram.com/_astro_coded" target="_blank" rel="noopener">@_astro_coded</a>
+</footer>
+
+<button id="motionBtn" type="button" hidden>Enable motion</button>
+
+<script src="places.js"></script>
+<script src="astro-engine.js"></script>
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const look = { x: 0, y: 0 };
+  const target = { x: 0, y: 0 };
+  let scrollSmooth = 0;
+
+  // ============================================================
+  // 1) SOFT LIGHT BACKGROUND (WebGL, ivory / beige / mint)
+  // ============================================================
+  const glCanvas = document.getElementById('bg-gl');
+  const gl = glCanvas.getContext('webgl', { antialias: false, alpha: false });
+  let program = null;
+  let uniforms = null;
+
+  const VERT = 'attribute vec2 a_pos; void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }';
+  const FRAG = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec2 u_res;
+uniform float u_time;
+uniform vec2 u_look;
+uniform float u_scroll;
+uniform float u_shift;
+
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+}
+float fbm(vec2 p) {
+  float v = 0.0;
+  float a = 0.5;
+  for (int i = 0; i < 5; i++) {
+    v += a * noise(p);
+    p = p * 2.03 + vec2(1.7, 9.2);
+    a *= 0.5;
+  }
+  return v;
+}
+void main() {
+  vec2 uv = gl_FragCoord.xy / u_res;
+  vec2 p = (gl_FragCoord.xy - 0.5 * u_res) / u_res.y;
+  p += u_look * 0.10;
+  p.y += u_scroll * 0.5;
+
+  float t = u_time * 0.03;
+  vec2 q = vec2(fbm(p * 1.3 + t), fbm(p * 1.3 + vec2(4.1, 1.7) - t));
+  vec2 r = vec2(fbm(p * 1.5 + 2.0 * q + vec2(1.2, 8.3) + 0.2 * t),
+                fbm(p * 1.5 + 2.0 * q + vec2(7.1, 2.4) + 0.15 * t));
+  float f = fbm(p * 1.2 + 2.5 * r);
+
+  vec3 ivory = vec3(0.984, 0.973, 0.949);
+  vec3 beige = vec3(0.914, 0.875, 0.804);
+  vec3 mint = mix(vec3(0.749, 0.914, 0.843), vec3(0.706, 0.894, 0.863), u_shift);
+  vec3 champagne = vec3(0.965, 0.902, 0.776);
+
+  vec3 col = ivory;
+  col = mix(col, beige, smoothstep(0.35, 0.85, f) * 0.7);
+  col = mix(col, mint, smoothstep(0.45, 0.95, f * r.x + 0.15) * 0.6);
+  col = mix(col, champagne, smoothstep(0.55, 1.0, r.y) * 0.5);
+  col = mix(col, mint, exp(-length(p) * 2.2) * 0.25);
+  col += (hash(gl_FragCoord.xy + fract(u_time)) - 0.5) * 0.018;
+
+  float vig = 1.0 - smoothstep(0.55, 1.1, length(uv - 0.5) * 1.2);
+  col = mix(ivory, col, 0.55 + 0.45 * vig);
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
+  function compile(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      console.error(gl.getShaderInfoLog(shader));
+      return null;
+    }
+    return shader;
+  }
+
+  if (gl) {
+    const vs = compile(gl.VERTEX_SHADER, VERT);
+    const fs = compile(gl.FRAGMENT_SHADER, FRAG);
+    if (vs && fs) {
+      program = gl.createProgram();
+      gl.attachShader(program, vs);
+      gl.attachShader(program, fs);
+      gl.linkProgram(program);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        console.error(gl.getProgramInfoLog(program));
+        program = null;
+      }
+    }
+  }
+
+  if (program) {
+    gl.useProgram(program);
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(program, 'a_pos');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    uniforms = {
+      res: gl.getUniformLocation(program, 'u_res'),
+      time: gl.getUniformLocation(program, 'u_time'),
+      look: gl.getUniformLocation(program, 'u_look'),
+      scroll: gl.getUniformLocation(program, 'u_scroll'),
+      shift: gl.getUniformLocation(program, 'u_shift')
+    };
+  } else {
+    glCanvas.style.display = 'none';
+  }
+
+  function resizeBg() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    glCanvas.width = Math.round(innerWidth * dpr * 0.6);
+    glCanvas.height = Math.round(innerHeight * dpr * 0.6);
+    if (gl) gl.viewport(0, 0, glCanvas.width, glCanvas.height);
+  }
+  resizeBg();
+  window.addEventListener('resize', resizeBg);
+
+  // ============================================================
+  // 2) MOTION: mouse, phone gyroscope, and scroll
+  // ============================================================
+  if (!reduceMotion) {
+    window.addEventListener('pointermove', e => {
+      target.x = (e.clientX / innerWidth) * 2 - 1;
+      target.y = -((e.clientY / innerHeight) * 2 - 1);
+    });
+    window.addEventListener('deviceorientation', e => {
+      if (e.gamma == null || e.beta == null) return;
+      target.x = Math.max(-1, Math.min(1, e.gamma / 25));
+      target.y = Math.max(-1, Math.min(1, (e.beta - 45) / 25));
+    });
+  }
+
+  const motionBtn = document.getElementById('motionBtn');
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    motionBtn.hidden = false;
+    motionBtn.addEventListener('click', async () => {
+      try {
+        const result = await DeviceOrientationEvent.requestPermission();
+        if (result === 'granted') motionBtn.hidden = true;
+      } catch (err) {
+        console.warn('Motion permission not granted', err);
+      }
+    });
+  }
+
+  const blobs = [...document.querySelectorAll('.blob')];
+  const orbitWrap = document.getElementById('orbitWrap');
+  const startTime = performance.now();
+
+  function frame(now) {
+    const t = (now - startTime) / 1000;
+    look.x += (target.x - look.x) * 0.05;
+    look.y += (target.y - look.y) * 0.05;
+
+    const maxScroll = document.documentElement.scrollHeight - innerHeight;
+    const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+    scrollSmooth += (progress - scrollSmooth) * 0.08;
+
+    if (program) {
+      const shift = 0.5 + 0.5 * Math.sin(t * 0.05 + scrollSmooth * 2.5);
+      gl.uniform2f(uniforms.res, glCanvas.width, glCanvas.height);
+      gl.uniform1f(uniforms.time, t);
+      gl.uniform2f(uniforms.look, look.x, look.y);
+      gl.uniform1f(uniforms.scroll, scrollSmooth);
+      gl.uniform1f(uniforms.shift, shift);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+
+    blobs.forEach((b, i) => {
+      const depth = i + 1;
+      b.style.transform = `translate3d(${look.x * 40 * depth}px, ${look.y * 40 * depth - scrollSmooth * 220 * depth}px, 0)`;
+    });
+
+    orbitWrap.style.transform = `rotateX(${-look.y * 14}deg) rotateY(${look.x * 18}deg)`;
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ============================================================
+  // 3) CHART EXPLORER
+  // ============================================================
+  const PLANETS = [
+    { id: 'Sun', color: '#B07A1E', nature: 'self, vitality, and authority', tone: 'intense', aspects: [7] },
+    { id: 'Moon', color: '#6E7A88', nature: 'mind, emotions, and comfort', tone: 'mixed', aspects: [7] },
+    { id: 'Mars', color: '#B3573A', nature: 'courage, drive, and action', tone: 'intense', aspects: [4, 7, 8] },
+    { id: 'Mercury', color: '#3C8F6F', nature: 'speech, learning, and trade', tone: 'mixed', aspects: [7] },
+    { id: 'Jupiter', color: '#9A7430', nature: 'wisdom, growth, and blessings', tone: 'supportive', aspects: [5, 7, 9] },
+    { id: 'Venus', color: '#B5687A', nature: 'love, beauty, and comfort', tone: 'supportive', aspects: [7] },
+    { id: 'Saturn', color: '#5F574B', nature: 'discipline, time, and responsibility', tone: 'intense', aspects: [3, 7, 10] },
+    { id: 'Rahu', color: '#5B6D7D', nature: 'desire, ambition, and unusual paths', tone: 'intense', aspects: [5, 7, 9] },
+    { id: 'Ketu', color: '#8A6F50', nature: 'detachment, insight, and release', tone: 'intense', aspects: [5, 7, 9] }
+  ];
+  const PBY = Object.fromEntries(PLANETS.map(p => [p.id, p]));
+
+  const HOUSES = {
+    1: { name: 'Self & body', area: 'personality, health, and how you present yourself' },
+    2: { name: 'Wealth & speech', area: 'money, family, food, and how you speak' },
+    3: { name: 'Courage & siblings', area: 'effort, short journeys, communication, and siblings' },
+    4: { name: 'Home & comfort', area: 'home, mother, property, and inner peace' },
+    5: { name: 'Creativity & children', area: 'creativity, intelligence, romance, and children' },
+    6: { name: 'Health & service', area: 'daily work, health habits, competition, and challenges' },
+    7: { name: 'Partnership', area: 'marriage, business partners, and close relationships' },
+    8: { name: 'Transformation', area: 'hidden matters, shared resources, and deep change' },
+    9: { name: 'Fortune & dharma', area: 'luck, higher learning, father, and guidance' },
+    10: { name: 'Career', area: 'profession, reputation, and public life' },
+    11: { name: 'Gains & networks', area: 'income, friends, and fulfilled wishes' },
+    12: { name: 'Release & rest', area: 'expenses, retreat, distant places, and spiritual release' }
+  };
+
+  // Chart geometry (North Indian style). Points are in a 300 x 300 box.
+  const POLY = {
+    1: [[150, 0], [225, 75], [150, 150], [75, 75]],
+    2: [[0, 0], [150, 0], [75, 75]],
+    3: [[0, 0], [0, 150], [75, 75]],
+    4: [[0, 150], [75, 75], [150, 150], [75, 225]],
+    5: [[0, 150], [0, 300], [75, 225]],
+    6: [[0, 300], [150, 300], [75, 225]],
+    7: [[150, 300], [75, 225], [150, 150], [225, 225]],
+    8: [[150, 300], [300, 300], [225, 225]],
+    9: [[300, 300], [300, 150], [225, 225]],
+    10: [[300, 150], [225, 225], [150, 150], [225, 75]],
+    11: [[300, 150], [300, 0], [225, 75]],
+    12: [[300, 0], [150, 0], [225, 75]]
+  };
+  const LABEL = {
+    1: [150, 75], 2: [75, 25], 3: [25, 75], 4: [75, 150], 5: [25, 225], 6: [75, 275],
+    7: [150, 225], 8: [225, 275], 9: [275, 225], 10: [225, 150], 11: [275, 75], 12: [225, 25]
+  };
+  const ORD = { 3: '3rd', 4: '4th', 5: '5th', 7: '7th', 8: '8th', 9: '9th', 10: '10th' };
+  const TONE_TEXT = {
+    supportive: 'Results tend to feel supportive here, with growth and good openings in this area.',
+    mixed: 'Results depend on the rest of the chart, so expect a mix of gains and lessons.',
+    intense: 'This asks for focus and steady effort. Results usually build through discipline.'
+  };
+
+  const state = {
+    mode: 'all',
+    selected: null,
+    placements: {},
+    focus: null
+  };
+
+  function targetHouse(h, offset) { return ((h + offset - 2) % 12) + 1; }
+
+  function aspectTargets(id) {
+    const h = state.placements[id];
+    if (!h) return [];
+    return PBY[id].aspects.map(o => ({ offset: o, house: targetHouse(h, o) }));
+  }
+
+  function aspectingOn(house) {
+    const out = [];
+    for (const id in state.placements) {
+      for (const a of aspectTargets(id)) {
+        if (a.house === house) out.push({ id, offset: a.offset, from: state.placements[id] });
+      }
+    }
+    return out;
+  }
+
+  function planetsIn(house) {
+    return Object.keys(state.placements).filter(id => state.placements[id] === house);
+  }
+
+  function arcPath(a, b, bend) {
+    const [x1, y1] = a, [x2, y2] = b;
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+    const dx = x2 - x1, dy = y2 - y1;
+    const len = Math.hypot(dx, dy) || 1;
+    const cx = mx - (dy / len) * bend;
+    const cy = my + (dx / len) * bend;
+    return `M${x1} ${y1} Q${cx} ${cy} ${x2} ${y2}`;
+  }
+
+  function computeMarks() {
+    const marks = {};
+    const add = (h, c) => { (marks[h] = marks[h] || new Set()).add(c); };
+    if (state.mode === 'place') {
+      const id = state.selected;
+      if (id && state.placements[id]) {
+        add(state.placements[id], 'source');
+        aspectTargets(id).forEach(t => add(t.house, 'target'));
+      }
+    } else if (state.mode === 'read') {
+      if (state.focus) {
+        add(state.focus, 'focus');
+        aspectingOn(state.focus).forEach(a => add(a.from, 'source'));
+      }
+    } else {
+      for (const id in state.placements) {
+        add(state.placements[id], 'source');
+        aspectTargets(id).forEach(t => add(t.house, 'target'));
+      }
+    }
+    return marks;
+  }
+
+  function computeArcs() {
+    const arcs = [];
+    if (state.mode === 'place') {
+      const id = state.selected;
+      if (id && state.placements[id]) {
+        aspectTargets(id).forEach(t => arcs.push({ from: state.placements[id], to: t.house }));
+      }
+    } else if (state.mode === 'read') {
+      if (state.focus) aspectingOn(state.focus).forEach(a => arcs.push({ from: a.from, to: state.focus }));
+    } else {
+      for (const id in state.placements) {
+        aspectTargets(id).forEach(t => arcs.push({ from: state.placements[id], to: t.house }));
+      }
+    }
+    return arcs;
+  }
+
+  function drawChart() {
+    const marks = computeMarks();
+    const arcs = computeArcs();
+
+    let houses = '';
+    for (let h = 1; h <= 12; h++) {
+      const classes = ['house', ...(marks[h] ? [...marks[h]] : [])].join(' ');
+      houses += `<polygon data-h="${h}" class="${classes}" points="${POLY[h].map(p => p.join(',')).join(' ')}"></polygon>`;
+    }
+    document.getElementById('gHouses').innerHTML = houses;
+
+    document.getElementById('gGrid').innerHTML = `
+      <rect class="frame" x="0" y="0" width="300" height="300"></rect>
+      <line class="gridline" x1="0" y1="0" x2="300" y2="300"></line>
+      <line class="gridline" x1="300" y1="0" x2="0" y2="300"></line>
+      <polygon class="gridline" points="150,0 300,150 150,300 0,150"></polygon>`;
+
+    document.getElementById('gArcs').innerHTML = arcs
+      .map(a => `<path class="arc" d="${arcPath(LABEL[a.from], LABEL[a.to], 34)}" marker-end="url(#arrow)"></path>`)
+      .join('');
+
+    let labels = '';
+    for (let h = 1; h <= 12; h++) {
+      const [x, y] = LABEL[h];
+      labels += `<text class="hlabel" x="${x}" y="${y - 2}">${h}</text>`;
+      planetsIn(h).forEach((id, i) => {
+        labels += `<text class="pname" x="${x}" y="${y + 12 + i * 11}" fill="${PBY[id].color}">${id}</text>`;
+      });
+    }
+    document.getElementById('gLabels').innerHTML = labels;
+  }
+
+  function renderChips() {
+    const wrap = document.getElementById('planetChips');
+    wrap.innerHTML = PLANETS.map(p => {
+      const h = state.placements[p.id];
+      return `<button class="chip ${state.selected === p.id ? 'on' : ''}" data-id="${p.id}" type="button">
+        <span class="dot2" style="background:${p.color}"></span>${p.id}${h ? ` <small>H${h}</small>` : ''}
+      </button>`;
+    }).join('');
+  }
+
+  function renderModes() {
+    document.querySelectorAll('.mode').forEach(b => b.classList.toggle('on', b.dataset.mode === state.mode));
+  }
+
+  function renderStep() {
+    const el = document.getElementById('stepText');
+    if (state.mode === 'place') {
+      const id = state.selected;
+      if (!id) el.textContent = 'Step 1: choose a planet below.';
+      else if (!state.placements[id]) el.textContent = `Step 2: click any house to place ${id}.`;
+      else el.textContent = `${id} is in House ${state.placements[id]}. Click another house to move it.`;
+    } else if (state.mode === 'read') {
+      el.textContent = 'Click any house to see which planets aspect it.';
+    } else {
+      el.textContent = 'Showing every placed planet and its aspects.';
+    }
+  }
+
+  function card(title, body) {
+    return `<div class="rcard"><h4>${title}</h4><p>${body}</p></div>`;
+  }
+
+  function renderReadout() {
+    const box = document.getElementById('readout');
+    let html = '';
+
+    if (state.mode === 'place') {
+      const id = state.selected;
+      if (!id) {
+        html = card('Pick a planet', 'Choose a planet above to see where it sits and which houses it aspects.');
+      } else if (!state.placements[id]) {
+        html = card(`${id} is not placed yet`, `Click any house on the chart to place ${id} there.`);
+      } else {
+        const h = state.placements[id];
+        const p = PBY[id];
+        html = `<div class="rcard">
+          <h4>${id} in House ${h}</h4>
+          <p>${id} brings ${p.nature} into ${HOUSES[h].area}. ${TONE_TEXT[p.tone]}</p>
+          <span class="tag">${HOUSES[h].name}</span>
+        </div>`;
+        html += `<div class="rcard"><h4>Aspects from ${id}</h4>`;
+        aspectTargets(id).forEach(t => {
+          html += `<p><span class="tag gold">${ORD[t.offset]} aspect</span> House ${t.house} (${HOUSES[t.house].name}): ${p.id} brings ${p.nature} into ${HOUSES[t.house].area}.</p>`;
+        });
+        html += `</div>`;
+      }
+    } else if (state.mode === 'read') {
+      if (!state.focus) {
+        html = card('Click a house', 'Click any house on the chart to see the planets that aspect it.');
+      } else {
+        const h = state.focus;
+        const inside = planetsIn(h);
+        html = `<div class="rcard">
+          <h4>House ${h}: ${HOUSES[h].name}</h4>
+          <p>This house covers ${HOUSES[h].area}.</p>
+          <p style="margin-top:10px;">${inside.length
+            ? inside.map(id => `<span class="tag">${id} sits here</span>`).join('')
+            : 'No planet sits in this house yet.'}</p>
+        </div>`;
+        const incoming = aspectingOn(h);
+        html += `<div class="rcard"><h4>Aspects received</h4>`;
+        if (incoming.length === 0) {
+          html += `<p>No placed planet aspects this house yet. Place a planet to see its effect.</p>`;
+        } else {
+          incoming.forEach(a => {
+            const p = PBY[a.id];
+            html += `<p><span class="tag gold">${ORD[a.offset]} aspect from House ${a.from}</span> ${a.id} brings ${p.nature} into ${HOUSES[h].area}. ${TONE_TEXT[p.tone]}</p>`;
+          });
+        }
+        html += `</div>`;
+      }
+    } else {
+      const ids = Object.keys(state.placements);
+      if (ids.length === 0) {
+        html = card('No planets placed', 'Load the example chart, or switch to Place planet and add a few.');
+      } else {
+        html = `<div class="rcard"><h4>Every placement</h4>`;
+        ids.forEach(id => {
+          const targets = aspectTargets(id).map(t => `H${t.house}`).join(', ');
+          html += `<p><strong style="color:var(--ink);">${id}</strong> in House ${state.placements[id]} aspects ${targets}.</p>`;
+        });
+        html += `</div>`;
+      }
+    }
+    box.innerHTML = html;
+  }
+
+  function render() {
+    drawChart();
+    renderChips();
+    renderModes();
+    renderStep();
+    renderReadout();
+  }
+
+  document.getElementById('chartSvg').addEventListener('click', e => {
+    const poly = e.target.closest('polygon.house');
+    if (!poly) return;
+    const h = Number(poly.dataset.h);
+    if (state.mode === 'place' && state.selected) {
+      state.placements[state.selected] = h;
+      state.focus = null;
+    } else {
+      state.focus = h;
+      state.mode = 'read';
+    }
+    render();
+  });
+
+  document.getElementById('planetChips').addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    const id = chip.dataset.id;
+    state.selected = state.selected === id ? null : id;
+    state.mode = 'place';
+    render();
+  });
+
+  document.querySelectorAll('.mode').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.mode = btn.dataset.mode;
+      render();
+    });
+  });
+
+  document.getElementById('loadExample').addEventListener('click', () => {
+    state.placements = { Sun: 10, Moon: 4, Mars: 7, Mercury: 10, Jupiter: 1, Venus: 11, Saturn: 6, Rahu: 12, Ketu: 6 };
+    state.selected = null;
+    state.focus = null;
+    state.mode = 'all';
+    render();
+  });
+
+  document.getElementById('clearChart').addEventListener('click', () => {
+    state.placements = {};
+    state.selected = null;
+    state.focus = null;
+    state.mode = 'place';
+    render();
+  });
+
+  // Start with the example chart so aspects are visible right away
+  state.placements = { Sun: 10, Moon: 4, Mars: 7, Mercury: 10, Jupiter: 1, Venus: 11, Saturn: 6, Rahu: 12, Ketu: 6 };
+  render();
+
+  // ============================================================
+  // 4) CARD TILT (features and booking cards)
+  // ============================================================
+  function attachTilt(card) {
+    card.addEventListener('pointermove', e => {
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width;
+      const py = (e.clientY - r.top) / r.height;
+      card.style.setProperty('--mx', (px * 100) + '%');
+      card.style.setProperty('--my', (py * 100) + '%');
+      card.style.transform = `perspective(900px) rotateX(${(0.5 - py) * 6}deg) rotateY(${(px - 0.5) * 8}deg)`;
+    });
+    card.addEventListener('pointerleave', () => { card.style.transform = ''; });
+  }
+  document.querySelectorAll('.glass.tilt').forEach(attachTilt);
+
+  // ============================================================
+  // 5) SCROLL REVEAL
+  // ============================================================
+  const io = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    }
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ============================================================
+  // 6) FREE BASICS: Sun sign and Life Path
+  // ============================================================
+  const SIGN_DATA = [
+    [1, 20, 'Aquarius', 'Original thinker. Friendly, independent, and drawn to new ideas.'],
+    [2, 19, 'Pisces', 'Intuitive and compassionate. Creative when given space.'],
+    [3, 21, 'Aries', 'Bold and energetic. Quick to start, and good at leading.'],
+    [4, 20, 'Taurus', 'Patient and loyal. Steady progress suits you best.'],
+    [5, 21, 'Gemini', 'Curious and quick-witted. Communication is a strength.'],
+    [6, 21, 'Cancer', 'Caring and protective. Home and family matter deeply.'],
+    [7, 23, 'Leo', 'Warm and confident. Generous with your creativity.'],
+    [8, 23, 'Virgo', 'Practical and detail-minded. Helpful and dependable.'],
+    [9, 23, 'Libra', 'Fair-minded and social. Harmony guides your choices.'],
+    [10, 23, 'Scorpio', 'Passionate and determined. Private, with deep focus.'],
+    [11, 22, 'Sagittarius', 'Optimistic and adventurous. Honest and curious about the world.'],
+    [12, 22, 'Capricorn', 'Disciplined and ambitious. Responsible and patient with goals.']
+  ];
+  const TRAITS = Object.fromEntries(SIGN_DATA.map(row => [row[2], row[3]]));
+
+  const LIFE_PATH = {
+    1: 'Leader. Independent and driven, happiest when starting something new.',
+    2: 'Partner. Cooperative and sensitive, strong at building relationships.',
+    3: 'Creator. Expressive and social, good with words and ideas.',
+    4: 'Builder. Practical and disciplined, reliable with long-term goals.',
+    5: 'Explorer. Adventurous and adaptable, drawn to freedom and change.',
+    6: 'Nurturer. Caring and responsible, devoted to family and community.',
+    7: 'Seeker. Thoughtful and analytical, drawn to inner wisdom.',
+    8: 'Achiever. Ambitious and organized, focused on results.',
+    9: 'Humanitarian. Compassionate and generous, focused on the bigger picture.',
+    11: 'Master Intuitive. Sensitive and inspiring. Does best with a calm, grounded routine.',
+    22: 'Master Builder. Able to turn big visions into real structures.',
+    33: 'Master Teacher. Caring and selfless, with a gift for guiding others.'
+  };
+
+  function sunSign(month, day) {
+    let result = 'Capricorn';
+    for (const [m, d, name] of SIGN_DATA) {
+      if (month > m || (month === m && day >= d)) result = name;
+    }
+    return result;
+  }
+
+  function digitSum(n) {
+    return String(n).split('').reduce((total, digit) => total + Number(digit), 0);
+  }
+
+  function lifePath(day, month, year) {
+    let n = digitSum(day) + digitSum(month) + digitSum(year);
+    while (n > 9 && ![11, 22, 33].includes(n)) n = digitSum(n);
+    return n;
+  }
+
+  function esc(text) {
+    return String(text).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  // ============================================================
+  // 7) BIRTH CHART: places.js + astro-engine.js wired to the form and the chart explorer
+  // ============================================================
+  const SKY = window.AstroEngine;
+  const allPlaces = window.PLACES || [];
+  const placeIndex = new Map();
+  const keyOf = t => String(t).trim().toLowerCase().replace(/\s+/g, ' ');
+
+  // Aliases first, then official names, so an official name always wins a clash.
+  allPlaces.forEach(p => p.a.split(',').map(keyOf).filter(Boolean).forEach(a => placeIndex.set(a, p)));
+  allPlaces.forEach(p => {
+    placeIndex.set(keyOf(p.n), p);
+    placeIndex.set(keyOf(`${p.n}, ${p.s}`), p);
+  });
+
+  const fmtDeg = x => {
+    const d = Math.floor(x), m = Math.floor((x - d) * 60);
+    return `${d}° ${String(m).padStart(2, '0')}′`;
+  };
+
+  // ---------- Place search: built-in list first, then live search across India ----------
+  const pobInput = document.getElementById('pob');
+  const pobList = document.getElementById('pobList');
+  let pobTimer = null, pobReq = 0, pobItems = [];
+
+  function clearPobSelection() {
+    delete pobInput.dataset.lat; delete pobInput.dataset.lon; delete pobInput.dataset.label;
+  }
+
+  function localMatches(q) {
+    const k = keyOf(q), out = [];
+    for (const p of allPlaces) {
+      const names = [keyOf(p.n), ...p.a.split(',').map(keyOf)];
+      const hit = names.some(n => n.startsWith(k) || n.split(' ').some(w => w.startsWith(k)));
+      if (hit) out.push({ label: `${p.n}, ${p.s}`, title: p.n, sub: p.s, lat: p.lat, lon: p.lon });
+      if (out.length >= 8) break;
+    }
+    return out;
+  }
+
+  const titleOf = a => a.village || a.hamlet || a.town || a.city || a.municipality || a.suburb || a.locality || a.neighbourhood || '';
+  const districtOf = a => a.county || a.state_district || a.district || '';
+  const uniqueJoin = parts => [...new Set(parts.filter(Boolean))].join(', ');
+
+  async function fetchJson(url) {
+    const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+
+  // Main search: OpenStreetMap Nominatim (covers villages, towns, districts across India)
+  async function nominatimSearch(q) {
+    const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=10&countrycodes=in&accept-language=en&q=' + encodeURIComponent(q);
+    const data = await fetchJson(url);
+    return data.map(r => {
+      const a = r.address || {};
+      const title = r.name || titleOf(a) || r.display_name.split(',')[0];
+      const district = districtOf(a);
+      const state = a.state || '';
+      return { title, sub: uniqueJoin([district, state]), label: uniqueJoin([title, district, state]), lat: Number(r.lat), lon: Number(r.lon) };
+    }).filter(x => !isNaN(x.lat) && !isNaN(x.lon));
+  }
+
+  // Backup search: Photon, kept only for India
+  async function photonSearch(q) {
+    const data = await fetchJson('https://photon.komoot.io/api/?limit=10&lang=en&q=' + encodeURIComponent(q));
+    return data.features.filter(f => {
+      const pr = f.properties || {}, [lon, lat] = f.geometry.coordinates;
+      return pr.countrycode === 'IN' || (lat > 6 && lat < 38 && lon > 68 && lon < 98);
+    }).map(f => {
+      const pr = f.properties, [lon, lat] = f.geometry.coordinates;
+      const district = pr.county || pr.district || '';
+      const title = pr.name || district;
+      return { title, sub: uniqueJoin([district, pr.state]), label: uniqueJoin([title, district, pr.state]), lat, lon };
+    });
+  }
+
+  async function onlineMatches(q) {
+    try {
+      return await nominatimSearch(q);
+    } catch (e) {
+      return await photonSearch(q);
+    }
+  }
+
+  async function reverseLookup(lat, lon) {
+    const d = await fetchJson(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=14&accept-language=en&lat=${lat}&lon=${lon}`);
+    const a = d.address || {};
+    const title = titleOf(a) || (d.name || '');
+    const district = districtOf(a);
+    const state = a.state || '';
+    return { title, sub: uniqueJoin([district, state]), label: uniqueJoin([title, district, state]) || d.display_name, lat, lon };
+  }
+
+  function pickPob(i) {
+    const it = pobItems[i];
+    if (!it) return;
+    pobInput.value = it.label;
+    pobInput.dataset.lat = it.lat; pobInput.dataset.lon = it.lon; pobInput.dataset.label = it.label;
+    pobList.hidden = true;
+  }
+
+  function renderPob(items, status) {
+    pobItems = items;
+    pobList.innerHTML = '';
+    if (status) {
+      const d = document.createElement('div');
+      d.className = 'pob-status';
+      d.textContent = status;
+      pobList.appendChild(d);
+    }
+    items.forEach((it, i) => {
+      const row = document.createElement('div');
+      row.className = 'pob-item';
+      const b = document.createElement('b'); b.textContent = it.title;
+      const sm = document.createElement('small'); sm.textContent = it.sub;
+      row.append(b, sm);
+      row.addEventListener('mousedown', ev => { ev.preventDefault(); pickPob(i); });
+      pobList.appendChild(row);
+    });
+    pobList.hidden = !(items.length || status);
+  }
+
+  pobInput.addEventListener('input', () => {
+    clearPobSelection();
+    clearTimeout(pobTimer);
+    const q = pobInput.value.trim();
+    if (q.length < 2) { pobList.hidden = true; return; }
+    const local = localMatches(q);
+    if (q.length < 3) { renderPob(local, ''); return; }
+    renderPob(local, 'Searching villages, towns and districts across India…');
+    const req = ++pobReq;
+    pobTimer = setTimeout(async () => {
+      try {
+        const online = await onlineMatches(q);
+        if (req !== pobReq) return;
+        const seen = new Set(local.map(x => x.label));
+        const extra = online.filter(x => !seen.has(x.label));
+        const all = [...local, ...extra];
+        renderPob(all, all.length ? '' : 'No place found. Try another spelling, or enter coordinates below.');
+      } catch (err) {
+        if (req !== pobReq) return;
+        renderPob(local, local.length
+          ? 'Live search is unavailable right now. Showing the built-in list.'
+          : 'Live search is unavailable. Try again, or enter coordinates below.');
+      }
+    }, 600);
+  });
+
+  pobInput.addEventListener('keydown', e => {
+    const rows = [...pobList.querySelectorAll('.pob-item')];
+    if (pobList.hidden || !rows.length) return;
+    const cur = rows.findIndex(r => r.classList.contains('active'));
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const next = (cur + (e.key === 'ArrowDown' ? 1 : -1) + rows.length) % rows.length;
+      rows.forEach((r, i) => r.classList.toggle('active', i === next));
+    } else if (e.key === 'Enter' && cur >= 0) {
+      e.preventDefault();
+      pickPob(Number(rows[cur].dataset.i ?? cur));
+    } else if (e.key === 'Escape') {
+      pobList.hidden = true;
+    }
+  });
+  pobInput.addEventListener('blur', () => setTimeout(() => { pobList.hidden = true; }, 150));
+
+  function setPobSelection(it) {
+    pobInput.value = it.label;
+    pobInput.dataset.lat = it.lat; pobInput.dataset.lon = it.lon; pobInput.dataset.label = it.label;
+    pobList.hidden = true;
+  }
+
+  const gpsBtn = document.getElementById('useGps');
+  const gpsStatus = document.getElementById('gpsStatus');
+  gpsBtn.addEventListener('click', () => {
+    if (!window.isSecureContext || !navigator.geolocation) {
+      gpsStatus.textContent = 'Live location needs the https website (not a file opened on the computer). Or type your place instead.';
+      return;
+    }
+    gpsStatus.textContent = 'Getting your location…';
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const lat = pos.coords.latitude, lon = pos.coords.longitude;
+      let it = { title: '', sub: '', label: `${lat.toFixed(3)}, ${lon.toFixed(3)}`, lat, lon };
+      try { it = await reverseLookup(lat, lon); } catch (e) { /* keep coordinates if name lookup fails */ }
+      setPobSelection(it);
+      gpsStatus.textContent = 'Location found: ' + it.label;
+    }, err => {
+      gpsStatus.textContent = err.code === 1
+        ? 'Location permission is blocked. Allow it in your browser settings, or type your place.'
+        : err.code === 3
+          ? 'Location took too long. Try again, or type your place.'
+          : 'Live location is not available on this device. Type your place instead.';
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
+  });
+
+  function readBirth() {
+    const [year, month, day] = document.getElementById('dob').value.split('-').map(Number);
+    const tob = document.getElementById('tob').value;
+    const [hour, minute] = tob ? tob.split(':').map(Number) : [0, 0];
+    const tz = Number(document.getElementById('tz').value);
+    const latRaw = document.getElementById('lat').value;
+    const lonRaw = document.getElementById('lon').value;
+
+    let lat = NaN, lon = NaN, placeLabel = '';
+    if (pobInput.dataset.lat) {
+      // Picked from the suggestion list
+      lat = Number(pobInput.dataset.lat); lon = Number(pobInput.dataset.lon); placeLabel = pobInput.dataset.label;
+    } else {
+      // Typed exactly, matched against the built-in list
+      const found = placeIndex.get(keyOf(pobInput.value));
+      if (found) {
+        lat = found.lat; lon = found.lon; placeLabel = `${found.n}, ${found.s}`;
+      } else if (latRaw !== '' && lonRaw !== '') {
+        lat = Number(latRaw); lon = Number(lonRaw); placeLabel = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+      }
+    }
+    return { year, month, day, hour, minute, tz: isNaN(tz) ? 5.5 : tz, timeGiven: !!tob, lat, lon, placeLabel };
+  }
+
+  document.getElementById('kundliForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const result = document.getElementById('result');
+    result.style.display = 'block';
+
+    if (!SKY) {
+      result.innerHTML = '<div class="glass"><p class="err">The chart engine did not load. Check that astro-engine.js is in the same folder as index.html.</p></div>';
+      return;
+    }
+
+    const name = document.getElementById('name').value.trim();
+    const b = readBirth();
+
+    // Typed a name but did not pick a suggestion: look it up once before giving up
+    if (b.timeGiven && isNaN(b.lat) && pobInput.value.trim()) {
+      result.innerHTML = '<div class="glass"><p>Finding your birth place…</p></div>';
+      const hits = await onlineMatches(pobInput.value.trim()).catch(() => []);
+      if (hits.length) { b.lat = hits[0].lat; b.lon = hits[0].lon; b.placeLabel = hits[0].label; }
+    }
+
+    const dob = new Date(b.year, b.month - 1, b.day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let error = null;
+    if (!b.year || dob > today) error = 'Please enter a valid birth date that is not in the future.';
+    else if (b.timeGiven && (isNaN(b.lat) || isNaN(b.lon))) error = 'Pick your birth place from the suggestions, or open "Place not in the list?" and enter its coordinates.';
+    else if (b.timeGiven && (Math.abs(b.lat) > 90 || Math.abs(b.lon) > 180)) error = 'Those coordinates are out of range.';
+    if (error) {
+      result.innerHTML = `<div class="glass"><p class="err">${esc(error)}</p></div>`;
+      return;
+    }
+
+    const sign = sunSign(b.month, b.day);
+    const lp = lifePath(b.day, b.month, b.year);
+    let html = `
+      <div class="grid" style="margin-top:0;">
+        <div class="glass tilt">
+          <p class="eyebrow" style="margin-bottom:8px;">Hi ${esc(name)}</p>
+          <h3>Your Sun sign: ${esc(sign)}</h3>
+          <p style="margin-top:8px;">${esc(TRAITS[sign])}</p>
+          <p style="margin-top:10px;font-size:14px;">This is the Western Sun sign. Your Vedic Rashi is shown below when you add a birth time.</p>
+        </div>
+        <div class="glass tilt">
+          <p class="eyebrow" style="margin-bottom:8px;">Numerology</p>
+          <h3>Life Path ${lp}</h3>
+          <p style="margin-top:8px;">${esc(LIFE_PATH[lp])}</p>
+        </div>
+      </div>`;
+
+    if (!b.timeGiven) {
+      html += `<div class="glass" style="margin-top:22px;">
+        <p class="eyebrow" style="margin-bottom:8px;">Vedic chart</p>
+        <h3>Add your birth time</h3>
+        <p style="margin-top:8px;">Your Lagna, Rashi, Nakshatra and planet houses depend on the exact birth time and place. Add both above to see your free chart.</p>
+      </div>`;
+      result.innerHTML = html;
+      result.querySelectorAll('.glass.tilt').forEach(attachTilt);
+      result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
+
+    const chart = SKY.compute({
+      year: b.year, month: b.month, day: b.day, hour: b.hour, minute: b.minute,
+      lat: b.lat, lon: b.lon, tz: b.tz
+    });
+    const moon = chart.planets.find(p => p.name === 'Moon');
+    const rows = chart.planets.map(p => {
+      const retro = p.retro && p.name !== 'Rahu' && p.name !== 'Ketu' ? ' <span class="tag gold">R</span>' : '';
+      return `<tr>
+        <td style="color:${PBY[p.name].color};font-weight:800;">${esc(p.name)}</td>
+        <td>${esc(SKY.SIGNS[p.sign].en)}</td>
+        <td>${fmtDeg(p.degInSign)}</td>
+        <td>${esc(p.nakName)} · pada ${p.pada}</td>
+        <td>House ${p.house}${retro}</td>
+      </tr>`;
+    }).join('');
+
+    html += `
+      <div class="glass tilt" style="margin-top:22px;">
+        <p class="eyebrow" style="margin-bottom:8px;">Your Vedic chart · ${esc(b.placeLabel)}</p>
+        <div class="chart-meta">
+          <div class="meta-box"><span>Lagna</span><strong>${esc(SKY.SIGNS[chart.asc.sign].en)}</strong><small>${fmtDeg(chart.asc.degInSign)}</small></div>
+          <div class="meta-box"><span>Rashi (Moon sign)</span><strong>${esc(SKY.SIGNS[moon.sign].en)}</strong><small>${esc(SKY.SIGNS[moon.sign].sa)}</small></div>
+          <div class="meta-box"><span>Nakshatra</span><strong>${esc(moon.nakName)}</strong><small>Pada ${moon.pada} · lord ${esc(moon.nakLord)}</small></div>
+        </div>
+        <div class="table-wrap">
+          <table class="planet-table">
+            <thead><tr><th>Planet</th><th>Sign</th><th>Degree</th><th>Nakshatra</th><th>House</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div class="btns" style="margin-top:22px;">
+          <button class="btn" type="button" id="useChart">Show my planets in the chart explorer</button>
+        </div>
+        <p class="disclaimer">Calculated in your browser using sidereal (Lahiri) positions. Houses count from your Lagna. This is a starting point for learning, not a reading.</p>
+      </div>`;
+    result.innerHTML = html;
+
+    // Connect the result to the chart explorer above
+    result.querySelector('#useChart').addEventListener('click', () => {
+      state.placements = {};
+      chart.planets.forEach(p => { state.placements[p.name] = p.house; });
+      state.selected = null;
+      state.focus = null;
+      state.mode = 'all';
+      render();
+      document.getElementById('chart').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    result.querySelectorAll('.glass.tilt').forEach(attachTilt);
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+</script>
+</body>
+</html>
